@@ -20,30 +20,36 @@
 
 package com.staxrt.tutorial.controller;
 
-import com.staxrt.tutorial.exception.ResourceNotFoundException;
-import com.staxrt.tutorial.model.User;
-import com.staxrt.tutorial.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.Valid;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.staxrt.tutorial.exception.ResourceNotFoundException;
+import com.staxrt.tutorial.model.User;
+
 /**
  * The type User controller.
  *
- * @author Givantha Kalansuriya
+ * @author Roberto	Greco
  */
 @RestController
 @RequestMapping("/api/v1")
 public class UserController {
 
-  @Autowired
-  private UserRepository userRepository;
+
 
   /**
    * Get all users list.
@@ -52,7 +58,10 @@ public class UserController {
    */
   @GetMapping("/users")
   public List<User> getAllUsers() {
-    return userRepository.findAll();
+	  
+	  ArrayList<User> userList= new ArrayList<User>();
+   
+	  return userList;
   }
 
   /**
@@ -65,10 +74,10 @@ public class UserController {
   @GetMapping("/users/{id}")
   public ResponseEntity<User> getUsersById(@PathVariable(value = "id") Long userId)
       throws ResourceNotFoundException {
-    User user =
-        userRepository
-            .findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found on :: " + userId));
+    User user = new User();
+    user.setId(userId);
+    user.setFirstName("roberto");
+       
     return ResponseEntity.ok().body(user);
   }
 
@@ -80,7 +89,7 @@ public class UserController {
    */
   @PostMapping("/users")
   public User createUser(@Valid @RequestBody User user) {
-    return userRepository.save(user);
+    return user;
   }
 
   /**
@@ -96,17 +105,8 @@ public class UserController {
       @PathVariable(value = "id") Long userId, @Valid @RequestBody User userDetails)
       throws ResourceNotFoundException {
 
-    User user =
-        userRepository
-            .findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found on :: " + userId));
 
-    user.setEmail(userDetails.getEmail());
-    user.setLastName(userDetails.getLastName());
-    user.setFirstName(userDetails.getFirstName());
-    user.setUpdatedAt(new Date());
-    final User updatedUser = userRepository.save(user);
-    return ResponseEntity.ok(updatedUser);
+    return ResponseEntity.ok(userDetails);
   }
 
   /**
@@ -118,12 +118,7 @@ public class UserController {
    */
   @DeleteMapping("/user/{id}")
   public Map<String, Boolean> deleteUser(@PathVariable(value = "id") Long userId) throws Exception {
-    User user =
-        userRepository
-            .findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found on :: " + userId));
-
-    userRepository.delete(user);
+ 
     Map<String, Boolean> response = new HashMap<>();
     response.put("deleted", Boolean.TRUE);
     return response;
